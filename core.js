@@ -247,6 +247,52 @@
     });
   }
 
+  /* ── 표준 CSV 엔진 (PapaParse) ───────────────────────────────
+     페이지에 papaparse가 있으면 그 파서를 쓰고, 없으면 아래 자체 파서로
+     그대로 동작한다. 어느 쪽을 썼는지 결과에 남긴다. */
+  const ENGINES = { csv: null };
+
+  function setCsvEngine(impl) {
+    if (impl) ENGINES.csv = impl;
+    return ENGINES.csv;
+  }
+
+  function csvEngine() {
+    if (ENGINES.csv) return ENGINES.csv;
+    if (typeof globalThis !== 'undefined' && globalThis.Papa && typeof globalThis.Papa.parse === 'function') {
+      ENGINES.csv = globalThis.Papa;
+    }
+    return ENGINES.csv;
+  }
+
+  /* BOM·UTF-16·CP949(네이버 export)까지 읽는다. */
+  function decodeCsvBytes(buffer) {
+    const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
+    function tryDecode(label, slice, fatal) {
+      const decoder = new TextDecoder(label, fatal ? { fatal: true } : undefined);
+      return decoder.decode(bytes.subarray(slice || 0));
+    }
+    if (bytes.length >= 3 && bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF) {
+      return { text: tryDecode('utf-8', 3), encoding: 'utf-8', bom: true };
+    }
+    if (bytes.length >= 2 && bytes[0] === 0xFF && bytes[1] === 0xFE) {
+      return { text: tryDecode('utf-16le', 2), encoding: 'utf-16le', bom: true };
+    }
+    if (bytes.length >= 2 && bytes[0] === 0xFE && bytes[1] === 0xFF) {
+      return { text: tryDecode('utf-16be', 2), encoding: 'utf-16be', bom: true };
+    }
+    try {
+      return { text: tryDecode('utf-8', 0, true), encoding: 'utf-8', bom: false };
+    } catch (err) {
+      /* UTF-8로 읽히지 않으면 CP949(한국 엑셀·네이버 export)로 다시 시도한다. */
+      try {
+        return { text: tryDecode('euc-kr', 0, false), encoding: 'euc-kr', bom: false };
+      } catch (err2) {
+        return { text: tryDecode('utf-8', 0, false), encoding: 'utf-8', bom: false, lossy: true };
+      }
+    }
+  }
+
   /* ── CSV 파서 ──────────────────────────────────────────────
      Meta Ads Manager(영문), 네이버 광고관리자(국문), 엑셀 붙여넣기
      (탭 구분)를 모두 받는다. 따옴표 안의 쉼표·줄바꿈도 처리. */
@@ -338,13 +384,43 @@
   function parseCsv(text, opts) {
     const o = Object.assign({ currency: 'KRW', defaultPlatform: 'meta', startId: 1 }, opts || {});
     const clean = String(text || '').replace(/^\uFEFF/, '');
-    const delim = detectDelimiter(clean);
-    const rows = splitRows(clean, delim);
-    if (!rows.length) return { campaigns: [], skipped: 0, delimiter: delim, fields: [], error: 'empty' };
+    let delim = detectDelimiter(clean);
+    let rows = null;
+    let engine = 'builtin';
+    let warnings = [];
+
+    const papa = csvEngine();
+    if (papa) {
+      try {
+        const parsed = papa.parse(clean, {
+          delimiter: '', newline: '', quoteChar: '"', escapeChar: '"',
+          header: false, skipEmptyLines: 'greedy', dynamicTyping: false,
+        });
+        if (parsed && Array.isArray(parsed.data) && parsed.data.length) {
+          rows = parsed.data;
+          engine = 'papaparse';
+          if (parsed.meta && parsed.meta.delimiter) delim = parsed.meta.delimiter;
+          if (parsed.errors && parsed.errors.length) {
+            warnings = parsed.errors.slice(0, 3).map(function (e) {
+              return { row: e.row, message: e.message };
+            });
+          }
+        }
+      } catch (e) {
+        rows = null;
+      }
+    }
+    if (!rows) rows = splitRows(clean, delim);
+    if (!rows.length) {
+      return { campaigns: [], skipped: 0, delimiter: delim, fields: [], engine: engine, error: 'empty' };
+    }
 
     const hm = headerMap(rows[0], AD_ALIASES());
     if (hm.map.name == null) {
-      return { campaigns: [], skipped: rows.length - 1, delimiter: delim, fields: Object.keys(hm.map), error: 'noname' };
+      return {
+        campaigns: [], skipped: rows.length - 1, delimiter: delim,
+        fields: Object.keys(hm.map), engine: engine, error: 'noname',
+      };
     }
 
     const out = [];
@@ -392,6 +468,9 @@
       delimiter: delim,
       fields: Object.keys(hm.map),
       header: hm.seen,
+      engine: engine,
+      warnings: warnings,
+      rows: rows.length,
       error: out.length ? null : 'range',
     };
   }
@@ -547,6 +626,7 @@
   return {
     num, round2, roundBudget, metrics, audit, simulate, applyPlan,
     parseCsv, splitRows, detectDelimiter, normalizeHeader, parseStatus, inferPlatform,
+    decodeCsvBytes, setCsvEngine, csvEngine,
     copyVariants, copyParams, topicOf, tipKey, toCsv, toMarkdown,
     VERDICT_PRIORITY, AGENT_OF,
   };

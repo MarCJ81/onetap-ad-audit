@@ -581,7 +581,7 @@
     return true;
   }
 
-  function importCsv(text) {
+  function importCsv(text, decoded) {
     const hasDollar = /(^|[^A-Za-z])\$/.test(text);
     const hasWon = /₩|원/.test(text);
     const res = CORE.parseCsv(text, {
@@ -599,7 +599,10 @@
     setCampaigns(res.campaigns, 'csv');
     $('#pasteBox').hidden = true;
     $('#pasteToggle').setAttribute('aria-expanded', 'false');
-    toast(t('source.parsed', { n: res.campaigns.length }));
+    const enc = decoded && decoded.encoding && decoded.encoding !== 'utf-8'
+      ? ' · ' + t('source.encoding', { enc: decoded.encoding })
+      : '';
+    toast(t('source.parsed', { n: res.campaigns.length }) + enc);
   }
 
   function toggleCampaign(id) {
@@ -916,10 +919,18 @@
     $('#csvFile').addEventListener('change', function (e) {
       const file = e.target.files && e.target.files[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function () { importCsv(String(reader.result || '')); };
-      reader.onerror = function () { toast(t('source.failEmpty')); };
-      reader.readAsText(file, 'utf-8');
+      const fail = function () { toast(t('source.failEmpty')); };
+      if (file.arrayBuffer) {
+        file.arrayBuffer().then(function (buf) {
+          const decoded = CORE.decodeCsvBytes(buf);
+          importCsv(decoded.text, decoded);
+        }).catch(fail);
+      } else {
+        const reader = new FileReader();
+        reader.onload = function () { importCsv(String(reader.result || '')); };
+        reader.onerror = fail;
+        reader.readAsText(file, 'utf-8');
+      }
       e.target.value = '';
     });
 
