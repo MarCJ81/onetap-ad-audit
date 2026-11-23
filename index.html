@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>OneTap Ad Audit Studio — 메타·네이버 광고 AI 감사 &amp; ROAS 최적화</title>
+<meta name="description" content="Meta Ads·네이버 광고 캠페인을 붙여넣으면 3명의 AI 에이전트가 적자 캠페인에 OFF를 권하고, 고효율 캠페인으로 예산을 재배분합니다. 예상 절감액·추가 매출·ROAS 상승폭을 계산하고 CSV·MD로 내보내세요. 무료, 키 없이 100% 동작." />
+<meta property="og:title" content="OneTap Ad Audit Studio — 광고비는 그대로, ROAS만 올린다" />
+<meta property="og:description" content="Meta·네이버 광고 감사 3분. 스웜 커서가 캠페인을 짚고 OFF 배지와 예산 재배분안을 남깁니다." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://marcj81.github.io/onetap-ad-audit/" />
+<meta name="theme-color" content="#FFFFFF" />
+<meta name="color-scheme" content="light" />
+<link rel="canonical" href="https://marcj81.github.io/onetap-ad-audit/" />
+<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<a class="skip-link" href="#main" data-i18n="skip">본문으로 바로가기</a>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#" aria-label="OneTap Ad Audit Studio">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 20 20" width="18" height="18"><path d="M4 15V9M8 15V4M12 15v-4M16 15V7" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg>
+      </span>
+      <span class="brand-text">
+        <strong>OneTap Ad Audit Studio</strong>
+        <small data-i18n="brand.tagline">Meta · Naver 광고 감사</small>
+      </span>
+    </a>
+    <div class="top-actions">
+      <div class="lang-switch" role="group" data-i18n-aria="nav.lang" aria-label="언어">
+        <button type="button" class="lang-btn is-on" data-lang="ko" aria-pressed="true">KO</button>
+        <button type="button" class="lang-btn" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+      <a class="btn btn-ghost btn-sm privacy-link" href="privacy.html" data-i18n="nav.privacy">개인정보</a>
+      <button type="button" class="btn btn-sm pro-btn" id="proBtn"><i class="pro-dot" aria-hidden="true"></i><span class="pro-long" data-i18n="nav.pro">Pro · 내 키</span><span class="pro-short" data-i18n="nav.proShort">Pro</span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap" tabindex="-1">
+  <!-- hero -->
+  <section class="hero-grid" aria-labelledby="heroTitle">
+    <div class="tile tile-hero">
+      <span class="eyebrow"><i class="live-dot" aria-hidden="true"></i><span data-i18n="hero.eyebrow">No. 28 · Meta + 네이버 · 무료 + BYOK</span></span>
+      <h1 id="heroTitle"><span data-i18n="hero.titleLead">광고비는 그대로,</span> <em data-i18n="hero.titleAccent">ROAS만 끌어올립니다.</em></h1>
+      <p class="hero-lead" data-i18n="hero.lead">Meta Ads Manager와 네이버 광고관리자 CSV를 그대로 넣으세요. 세 AI 에이전트가 캠페인을 하나씩 짚어 적자는 끄고, 남는 예산은 잘 되는 캠페인으로 옮깁니다. 끝나면 예산안과 액션 리포트가 남습니다.</p>
+      <div class="promise-row">
+        <span class="promise"><b aria-hidden="true">✓</b><span data-i18n="hero.p1">키 없이 무료 100%</span></span>
+        <span class="promise"><b aria-hidden="true">✓</b><span data-i18n="hero.p2">키는 이 브라우저에만</span></span>
+        <span class="promise"><b aria-hidden="true">✓</b><span data-i18n="hero.p3">Meta·네이버 CSV 그대로</span></span>
+      </div>
+    </div>
+
+    <div class="tile tile-swarm">
+      <div class="tile-head">
+        <h2 data-i18n="hero.sideTitle">AI 스웜 3명이 계정을 훑습니다</h2>
+        <span class="live-dot" aria-hidden="true"></span>
+      </div>
+      <ul class="mini-agents">
+        <li class="mini-agent"><span class="avatar" style="background:#C2410C" aria-hidden="true">C</span><strong>Claude</strong><span data-i18n="role.claude">카피 · 소재</span></li>
+        <li class="mini-agent"><span class="avatar" style="background:#6D28D9" aria-hidden="true">G</span><strong>Gemini</strong><span data-i18n="role.gemini">데이터 · ROAS</span></li>
+        <li class="mini-agent"><span class="avatar" style="background:#0B7A55" aria-hidden="true">G</span><strong>GPT</strong><span data-i18n="role.gpt">예산 배분</span></li>
+      </ul>
+      <p class="tile-note" data-i18n="hero.sideNote">커서가 표 위를 움직이며 근거를 남기고, 마지막에 절감액과 재배분안을 계산합니다.</p>
+    </div>
+  </section>
+
+  <!-- KPI -->
+  <section class="kpi-grid" aria-label="Key metrics">
+    <div class="kpi">
+      <div class="kpi-label" data-i18n="kpi.active">집행 중 캠페인</div>
+      <div class="kpi-value" id="kpiActive">—</div>
+      <div class="kpi-note" id="kpiActiveNote">—</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label" data-i18n="kpi.spend">최근 30일 지출</div>
+      <div class="kpi-value" id="kpiSpend">—</div>
+      <div class="kpi-note" id="kpiSpendNote">—</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label" data-i18n="kpi.roas">블렌디드 ROAS</div>
+      <div class="kpi-value" id="kpiRoas">—</div>
+      <div class="kpi-note" id="kpiRoasNote">—</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label" data-i18n="kpi.cpa">평균 CPA</div>
+      <div class="kpi-value" id="kpiCpa">—</div>
+      <div class="kpi-note" id="kpiCpaNote">—</div>
+    </div>
+  </section>
+
+  <div class="studio-grid">
+    <div class="studio-main">
+
+      <!-- data source -->
+      <section class="panel source-panel" aria-labelledby="sourceTitle">
+        <div class="source-top">
+          <div class="source-title">
+            <h2 id="sourceTitle" data-i18n="source.title">데이터 불러오기</h2>
+            <p data-i18n="source.sub">샘플로 3초 만에, 실제 계정은 CSV로.</p>
+          </div>
+          <div class="source-actions">
+            <label class="btn btn-ghost btn-sm" for="csvFile">
+              <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5M4 12v4h12v-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span data-i18n="source.upload">CSV 파일</span>
+            </label>
+            <input id="csvFile" type="file" accept=".csv,.tsv,.txt,text/csv" class="sr-only" />
+            <button type="button" class="btn btn-ghost btn-sm" id="pasteToggle" aria-expanded="false">
+              <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><rect x="6" y="3.5" width="8" height="3" rx="1" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6.5 5.5H5v11h10v-11h-1.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+              <span data-i18n="source.paste">CSV 붙여넣기</span>
+            </button>
+            <button type="button" class="btn btn-sm" id="addRowBtn" data-i18n="source.addRow">행 추가</button>
+          </div>
+        </div>
+        <div class="sample-row">
+          <span class="sample-label" data-i18n="source.sample">샘플 캠페인</span>
+          <div class="sample-row" id="sampleBtns" style="margin-top:0"></div>
+        </div>
+        <div class="paste-box" id="pasteBox" hidden>
+          <textarea id="csvText" data-i18n-placeholder="source.pastePlaceholder" aria-label="CSV text"></textarea>
+          <div class="paste-foot">
+            <button type="button" class="btn btn-primary btn-sm" id="parseBtn" data-i18n="source.parse">이 CSV로 바꾸기</button>
+            <span class="hint" data-i18n="source.hint">헤더 이름만 맞으면 컬럼 순서는 상관없습니다</span>
+          </div>
+        </div>
+        <p class="source-hint" id="sourceHint" data-i18n="source.hint">헤더 이름만 맞으면 컬럼 순서는 상관없습니다 · 따옴표·쉼표·원화 기호 처리</p>
+      </section>
+
+      <!-- ads manager -->
+      <section class="panel table-panel" aria-labelledby="tableTitle">
+        <div class="panel-head">
+          <div>
+            <h2 id="tableTitle" data-i18n="table.title">캠페인 관리자</h2>
+            <p class="panel-sub" id="benchLine"></p>
+          </div>
+          <div class="table-actions">
+            <button type="button" class="btn btn-primary run-btn" id="runBtn">
+              <span aria-hidden="true">🤖</span>
+              <span id="runLabel" data-i18n="toolbar.run">AI 스웜 광고 감사 실행</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="table-wrap" id="tableWrap">
+          <table class="ad-table" id="adTable">
+            <thead>
+              <tr>
+                <th scope="col" data-i18n="table.colCampaign">캠페인</th>
+                <th scope="col" data-i18n="table.colStatus">상태</th>
+                <th scope="col" class="num" data-i18n="table.colBudget">일 예산</th>
+                <th scope="col" class="num" data-i18n="table.colSpend">지출 30일</th>
+                <th scope="col" class="num" data-i18n="table.colRoas">ROAS</th>
+                <th scope="col" class="num" data-i18n="table.colCpa">CPA</th>
+                <th scope="col" class="num col-ctr" data-i18n="table.colCtr">CTR</th>
+                <th scope="col" class="num col-conv" data-i18n="table.colConv">전환</th>
+                <th scope="col" data-i18n="table.colVerdict">감사</th>
+              </tr>
+            </thead>
+            <tbody id="adBody"></tbody>
+            <tfoot id="adFoot"></tfoot>
+          </table>
+          <div class="swarm-layer" id="swarmLayer" aria-hidden="true">
+            <div class="cursor" data-agent="claude">
+              <svg viewBox="0 0 18 20" width="17" height="19" aria-hidden="true"><path d="M2 1.6l13 7.4-5.8 1.3L6.6 17z" fill="#C2410C" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"/></svg>
+              <span class="cursor-label"><i aria-hidden="true"></i>Claude · <span data-i18n="role.claude">카피 · 소재</span></span>
+            </div>
+            <div class="cursor" data-agent="gemini">
+              <svg viewBox="0 0 18 20" width="17" height="19" aria-hidden="true"><path d="M2 1.6l13 7.4-5.8 1.3L6.6 17z" fill="#6D28D9" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"/></svg>
+              <span class="cursor-label"><i aria-hidden="true"></i>Gemini · <span data-i18n="role.gemini">데이터 · ROAS</span></span>
+            </div>
+            <div class="cursor" data-agent="gpt">
+              <svg viewBox="0 0 20 20" width="17" height="19" aria-hidden="true"><path d="M2 1.6l13 7.4-5.8 1.3L6.6 17z" fill="#0B7A55" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"/></svg>
+              <span class="cursor-label"><i aria-hidden="true"></i>GPT · <span data-i18n="role.gpt">예산 배분</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-foot">
+          <span class="state-chip" id="auditState"><i class="dot" aria-hidden="true"></i><span id="auditStateText" data-i18n="toolbar.idle">아직 감사하지 않았습니다</span></span>
+          <div class="foot-actions">
+            <button type="button" class="btn btn-sm" id="applyBtn" disabled data-i18n="toolbar.apply">예산안 적용</button>
+            <button type="button" class="btn btn-sm" id="csvBtn">
+              <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v9m0 0l-3.5-3.5M10 12l3.5-3.5M4 15.5h12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>CSV</span>
+            </button>
+            <button type="button" class="btn btn-sm" id="mdBtn">
+              <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v9m0 0l-3.5-3.5M10 12l3.5-3.5M4 15.5h12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>MD</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- copy -->
+      <section class="panel copy-panel" aria-labelledby="copyTitle">
+        <div class="panel-head">
+          <div>
+            <h2 id="copyTitle" data-i18n="copy.title">소재 개선안</h2>
+            <p class="panel-sub" data-i18n="copy.sub">감사에서 걸린 캠페인만 골라 3각도로 다시 씁니다.</p>
+          </div>
+          <button type="button" class="btn btn-sm pro-btn" id="copyProBtn"><i class="pro-dot" aria-hidden="true"></i><span data-i18n="copy.pro">Pro로 실제 카피 받기</span></button>
+        </div>
+        <div class="copy-tabs" id="copyTabs"></div>
+        <div class="copy-body" id="copyBody"></div>
+      </section>
+    </div>
+
+    <!-- swarm console -->
+    <aside class="studio-side">
+      <section class="panel swarm-panel" aria-labelledby="swarmTitle">
+        <div class="swarm-head">
+          <div class="swarm-head-top">
+            <h2 id="swarmTitle" data-i18n="swarm.title">AI 스웜 콘솔</h2>
+            <span class="swarm-status" id="swarmStatus"><i class="dot" aria-hidden="true"></i><span id="swarmStatusText" data-i18n="swarm.idle">대기 중</span></span>
+          </div>
+          <p class="tile-sub" data-i18n="swarm.sub">세 에이전트가 같은 표를 나눠 봅니다.</p>
+        </div>
+        <ul class="agent-list" id="agentList">
+          <li class="agent" data-agent="claude">
+            <span class="avatar" style="background:#C2410C" aria-hidden="true">C</span>
+            <span class="agent-meta"><strong>Claude</strong><span data-i18n="role.claude">카피 · 소재</span></span>
+            <span class="agent-state" data-i18n="agent.idle">대기</span>
+          </li>
+          <li class="agent" data-agent="gemini">
+            <span class="avatar" style="background:#6D28D9" aria-hidden="true">G</span>
+            <span class="agent-meta"><strong>Gemini</strong><span data-i18n="role.gemini">데이터 · ROAS</span></span>
+            <span class="agent-state" data-i18n="agent.idle">대기</span>
+          </li>
+          <li class="agent" data-agent="gpt">
+            <span class="avatar" style="background:#0B7A55" aria-hidden="true">G</span>
+            <span class="agent-meta"><strong>GPT</strong><span data-i18n="role.gpt">예산 배분</span></span>
+            <span class="agent-state" data-i18n="agent.idle">대기</span>
+          </li>
+        </ul>
+        <div class="log-box">
+          <div class="log-head">
+            <span data-i18n="swarm.log">활동 로그</span>
+            <span id="logCount">0/0</span>
+          </div>
+          <ul class="log" id="swarmLog" aria-live="polite">
+            <li class="log-empty" data-i18n="swarm.logEmpty">감사를 실행하면 커서가 움직이며 근거를 남깁니다.</li>
+          </ul>
+        </div>
+        <div class="result-box" id="resultBox">
+          <div class="result-head"><h3 data-i18n="result.title">시뮬레이션 결과</h3></div>
+          <p class="result-empty" data-i18n="result.none">감사를 실행하면 절감액과 재배분안이 여기에 계산됩니다.</p>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <!-- how -->
+  <section class="how-strip" aria-label="How it works">
+    <div class="how"><span class="how-n" aria-hidden="true">1</span><div><h3 data-i18n="how.s1t">불러오기</h3><p data-i18n="how.s1b">샘플 3세트 또는 Meta·네이버 CSV를 그대로.</p></div></div>
+    <div class="how"><span class="how-n" aria-hidden="true">2</span><div><h3 data-i18n="how.s2t">스웜 감사</h3><p data-i18n="how.s2b">커서가 적자 캠페인에 OFF 배지를 달고 로그를 남깁니다.</p></div></div>
+    <div class="how"><span class="how-n" aria-hidden="true">3</span><div><h3 data-i18n="how.s3t">적용 · 내보내기</h3><p data-i18n="how.s3b">예산안을 표에 반영하고 CSV·MD 리포트로 보냅니다.</p></div></div>
+  </section>
+
+  <!-- B2B CTA -->
+  <section class="cta-band" aria-labelledby="ctaTitle">
+    <div>
+      <span class="eyebrow" data-i18n="cta.eyebrow">B2B · 대행</span>
+      <h2 id="ctaTitle" data-i18n="cta.title">감사는 여기서, 운영은 맡기세요</h2>
+      <p data-i18n="cta.body">매주 예산 재배분과 소재 교체, 리포트까지 대신 하는 AI 백오피스 대행. 광고 계정 하나로 시작합니다.</p>
+    </div>
+    <div class="cta-actions">
+      <a class="btn btn-primary" href="https://marcj81.github.io/ai-backoffice-offer/" target="_blank" rel="noopener">
+        <span data-i18n="cta.button">AI 백오피스 대행 보기</span>
+        <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 15L15 5M15 5H8m7 0v7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="btn" href="https://marcj81.github.io/portal-hub/" target="_blank" rel="noopener" data-i18n="cta.secondary">다른 무료 도구 보기</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="foot-links">
+    <a href="privacy.html" data-i18n="foot.privacy">개인정보 처리방침</a>
+    <a href="https://marcj81.github.io/ai-backoffice-offer/" target="_blank" rel="noopener" data-i18n="cta.secondary">다른 무료 도구 보기</a>
+  </div>
+  <span id="footUpdated" data-i18n="foot.updated">데이터 기준 2026-11-22</span>
+  <span data-i18n="foot.disclaimer">시뮬레이션은 최근 30일 실적과 가정에 기반합니다. 실제 성과는 다를 수 있습니다.</span>
+  <span data-i18n="foot.made">무료 · 계정 없음 · 서버 전송 0건</span>
+</footer>
+
+<!-- row editor -->
+<div class="modal" id="rowModal" hidden>
+  <div class="modal-back" data-close="row"></div>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="rowModalTitle">
+    <div class="modal-head">
+      <h2 id="rowModalTitle" data-i18n="dlg.addTitle">캠페인 추가</h2>
+      <button type="button" class="modal-close" data-close="row" data-i18n-aria="dlg.close" aria-label="닫기">×</button>
+    </div>
+    <div class="form-grid">
+      <div class="field full">
+        <label for="fName" data-i18n="dlg.name">캠페인 이름</label>
+        <input id="fName" type="text" data-i18n-placeholder="dlg.namePlaceholder" placeholder="예) 리타겟팅 · 장바구니 7일" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="fPlatform" data-i18n="dlg.platform">매체</label>
+        <select id="fPlatform">
+          <option value="meta">Meta Ads</option>
+          <option value="naver">Naver</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="fObjective" data-i18n="dlg.objective">목표</label>
+        <select id="fObjective">
+          <option value="sales" data-i18n="obj.sales">구매</option>
+          <option value="lead" data-i18n="obj.lead">리드</option>
+          <option value="traffic" data-i18n="obj.traffic">트래픽</option>
+          <option value="awareness" data-i18n="obj.awareness">인지</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="fStatus" data-i18n="dlg.status">상태</label>
+        <select id="fStatus">
+          <option value="on" data-i18n="table.on">ON</option>
+          <option value="off" data-i18n="table.off">OFF</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="fBudget" data-i18n="dlg.budget">일 예산</label>
+        <input id="fBudget" type="text" inputmode="decimal" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="fSpend" data-i18n="dlg.spend">지출(30일)</label>
+        <input id="fSpend" type="text" inputmode="decimal" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="fImp" data-i18n="dlg.imp">노출</label>
+        <input id="fImp" type="text" inputmode="decimal" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="fClicks" data-i18n="dlg.clicks">클릭</label>
+        <input id="fClicks" type="text" inputmode="decimal" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="fConv" data-i18n="dlg.conv">전환</label>
+        <input id="fConv" type="text" inputmode="decimal" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="fRevenue" data-i18n="dlg.revenue">전환 매출</label>
+        <input id="fRevenue" type="text" inputmode="decimal" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="fFreq" data-i18n="dlg.freq">빈도</label>
+        <input id="fFreq" type="text" inputmode="decimal" autocomplete="off" />
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-danger" id="deleteRowBtn" hidden data-i18n="dlg.delete">삭제</button>
+      <div class="right">
+        <button type="button" class="btn" data-close="row" data-i18n="dlg.cancel">취소</button>
+        <button type="button" class="btn btn-primary" id="saveRowBtn" data-i18n="dlg.save">저장</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- pro -->
+<div class="modal" id="proModal" hidden>
+  <div class="modal-back" data-close="pro"></div>
+  <div class="modal-card wide" role="dialog" aria-modal="true" aria-labelledby="proTitle">
+    <div class="modal-head">
+      <h2 id="proTitle" data-i18n="pro.title">Pro · 내 AI 키로 실행</h2>
+      <button type="button" class="modal-close" data-close="pro" data-i18n-aria="dlg.close" aria-label="닫기">×</button>
+    </div>
+    <p class="modal-sub" data-i18n="pro.sub">OpenAI·Gemini·Claude 키를 넣으면 실제 모델이 캠페인 데이터를 읽고 카피 3안과 타겟 조정안을 씁니다. 키는 이 브라우저 localStorage에만 저장되고, 고른 제공자 외에는 어디로도 가지 않습니다.</p>
+    <div class="key-row">
+      <label for="key-openai">OpenAI</label>
+      <input id="key-openai" type="password" data-key="openai" data-i18n-placeholder="pro.keyPlaceholder" placeholder="sk-…" autocomplete="off" spellcheck="false" />
+      <span class="key-state" data-key-state="openai">—</span>
+    </div>
+    <div class="key-row">
+      <label for="key-gemini">Gemini</label>
+      <input id="key-gemini" type="password" data-key="gemini" data-i18n-placeholder="pro.keyPlaceholder" placeholder="AIza…" autocomplete="off" spellcheck="false" />
+      <span class="key-state" data-key-state="gemini">—</span>
+    </div>
+    <div class="key-row">
+      <label for="key-claude">Claude</label>
+      <input id="key-claude" type="password" data-key="claude" data-i18n-placeholder="pro.keyPlaceholder" placeholder="sk-ant-…" autocomplete="off" spellcheck="false" />
+      <span class="key-state" data-key-state="claude">—</span>
+    </div>
+    <div class="modal-actions" style="margin-top:8px">
+      <span class="copy-note" data-i18n="pro.free">키 없이도 무료 규칙 엔진으로 100% 동작합니다.</span>
+      <div class="right">
+        <button type="button" class="btn btn-sm" id="proClear" data-i18n="pro.clear">삭제</button>
+        <button type="button" class="btn btn-primary btn-sm" id="proSave" data-i18n="pro.save">키 저장</button>
+      </div>
+    </div>
+    <div class="key-row" style="margin-top:14px">
+      <label for="proProvider" data-i18n="pro.provider">제공자</label>
+      <select id="proProvider">
+        <option value="openai">OpenAI</option>
+        <option value="gemini">Gemini</option>
+        <option value="claude">Claude</option>
+      </select>
+      <button type="button" class="btn btn-primary btn-sm" id="proGenerate" data-i18n="pro.generate">카피 3안 생성</button>
+    </div>
+    <div class="pro-result" id="proResult" hidden></div>
+    <p class="copy-note" style="margin-top:10px" data-i18n="pro.note">브라우저에서 제공자 API로 직접 호출합니다. 키는 서버로 가지 않습니다.</p>
+  </div>
+</div>
+
+<div id="toastRoot" aria-live="polite"></div>
+
+<script src="data.js"></script>
+<script src="i18n.js"></script>
+<script src="core.js"></script>
+<script src="engines/ai-bridge.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
