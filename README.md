@@ -108,3 +108,11 @@ git push origin main
 ```
 
 `https://marcj81.github.io/onetap-ad-audit/` 기준으로 canonical·sitemap·CTA 링크가 맞춰져 있습니다.
+
+## 무료 AI 맛보기 (2026-11-23 2차 업그레이드)
+
+- CSV는 1차에서 붙인 **PapaParse 5.4.1(MIT)** 를 그대로 씁니다(`assets/vendor/`, `LICENSE-papaparse.txt`).
+- Pro 모달에 **무료 체험으로 먼저 생성** 버튼을 추가했습니다. `engines/pro-api-connector.js`가
+  `free-ai-taste` Worker를 호출해 카피 3안을 받고, 기존 `parseVariants`·적용 흐름을 그대로 탑니다.
+- `503 all_providers_busy` 1회 자동 재시도, `429` 한도 소진 시 한국어 안내 + 무료 Gemini 키 링크 카드.
+- `test.js`의 금칙어 검사 목록은 PUBLIC 저장소에 평문으로 남지 않도록 런타임 조립으로 바꿨습니다.

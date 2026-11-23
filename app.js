@@ -774,6 +774,67 @@
       btn.textContent = t('pro.generate');
     }
   }
+  /** 무료 AI 맛보기 — 키 없이 카피 3안을 받는다. */
+  async function generateFreePro() {
+    const btn = $('#proFree');
+    if (!window.ProConnector) {
+      showPro(state.lang === 'en' ? 'Free AI engine failed to load. Check engines/pro-api-connector.js.' : '무료 AI 엔진을 불러오지 못했습니다. engines/pro-api-connector.js 를 확인하세요.');
+      return;
+    }
+    const list = copyCandidates();
+    const f = list.find(function (x) { return x.campaignId === state.activeCopyId; }) || list[0];
+    if (!f) { showPro(t('copy.none')); return; }
+    const c = state.campaigns.find(function (x) { return x.id === f.campaignId; });
+    const m = CORE.metrics(c);
+    const tip = DATA.TARGET_TIPS[CORE.tipKey(c, m, state.bench)][state.lang];
+    const prompt = BRIDGE.buildPrompt(c, m, Object.assign({ currency: state.currency }, state.bench), state.lang, tip);
+    if (btn) { btn.disabled = true; btn.textContent = t('pro.generating'); }
+    showPro(t('pro.generating'));
+    try {
+      const res = await window.ProConnector.generateFree({ task: 'text', prompt: prompt }, {
+        app: 'ad-audit-studio', truncate: true, timeoutMs: 45000
+      });
+      if (!res.ok) {
+        if (res.upgrade) {
+          showPro((res.message || '') + '\n\n→ ' + (res.cta && res.cta.keyUrl ? res.cta.keyUrl : 'https://aistudio.google.com/apikey'));
+          const card = $('#proFreeCard');
+          if (card && window.ProConnector.freeLimitCard) {
+            const cc = window.ProConnector.freeLimitCard(res);
+            card.innerHTML = '<div class="free-card"><b>' + escHtml(cc.title) + '</b><p>' + escHtml(cc.body) + '</p>' +
+              '<a href="' + escHtml(cc.primary.href) + '" target="_blank" rel="noopener noreferrer">' + escHtml(cc.primary.label) + ' ↗</a></div>';
+          }
+        } else {
+          showPro(res.message || t('pro.error', { msg: res.reason || '' }));
+        }
+        return;
+      }
+      const variants = BRIDGE.parseVariants(res.text, state.lang);
+      if (!variants.length) throw new Error('no variants in response');
+      state.pro = {
+        campaignId: f.campaignId,
+        provider: 'free-taste',
+        variants: variants.slice(0, 3),
+        targeting: (variants.find(function (v) { return v.targeting; }) || {}).targeting || '',
+      };
+      const left = res.quota ? (state.lang === 'en' ? ' · ' + res.quota.remaining + '/' + res.quota.limit + ' left today' : ' · 오늘 ' + res.quota.remaining + '/' + res.quota.limit + '회 남음') : '';
+      showPro(t('pro.resultTitle') + left + '\n\n' + variants.map(function (v, i) {
+        return (i + 1) + '. ' + v.headline + '\n' + v.body + (v.cta ? '\n→ ' + v.cta : '');
+      }).join('\n\n'));
+      renderCopy();
+      toast(t('pro.done'));
+    } catch (e) {
+      showPro(t('pro.error', { msg: String(e.message || e).slice(0, 160) }));
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = state.lang === 'en' ? 'Try free first (no key)' : '무료 체험으로 먼저 생성'; }
+    }
+  }
+
+  function escHtml(s) {
+    return String(s === null || s === undefined ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
   function showPro(msg) {
     const box = $('#proResult');
     box.hidden = false;
@@ -985,6 +1046,8 @@
       toast(t('toast.keyCleared'));
     });
     $('#proGenerate').addEventListener('click', function () { generatePro($('#proProvider').value); });
+    const freeBtn = $('#proFree');
+    if (freeBtn) freeBtn.addEventListener('click', function () { generateFreePro(); });
 
     $$('[data-close]').forEach(function (el) {
       el.addEventListener('click', function () { hideModal(el.getAttribute('data-close')); });
