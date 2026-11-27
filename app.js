@@ -119,6 +119,25 @@
       }));
     } catch (e) { /* quota/private mode */ }
   }
+  /* Language: ?lang= → localStorage('onetap_lang') → navigator.language, then
+     the app's own saved choice. */
+  function pickLang() {
+    try {
+      const q = new URLSearchParams(location.search).get('lang');
+      if (q === 'ko' || q === 'en') return q;
+    } catch (e) { /* older engines */ }
+    try {
+      const s = localStorage.getItem('onetap_lang');
+      if (s === 'ko' || s === 'en') return s;
+    } catch (e) { /* private mode */ }
+    const nav = (navigator.language || navigator.userLanguage || '').toLowerCase();
+    return nav.indexOf('ko') === 0 ? 'ko' : 'en';
+  }
+
+  function rememberLang(lang) {
+    try { localStorage.setItem('onetap_lang', lang); } catch (e) { /* ignore */ }
+  }
+
   function load() {
     let raw = null;
     try { raw = JSON.parse(localStorage.getItem(LS) || 'null'); } catch (e) { raw = null; }
@@ -956,6 +975,7 @@
       b.addEventListener('click', function () {
         if (state.running) return;
         state.lang = b.getAttribute('data-lang');
+        rememberLang(state.lang);
         save();
         renderAll();
       });
@@ -1063,6 +1083,7 @@
 
   /* ── boot ─────────────────────────────────────────────── */
   load();
+  state.lang = pickLang();
   bind();
   renderAll();
   document.body.setAttribute('data-audit', 'idle');
